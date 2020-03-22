@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    "**/*.csv": true,
+    "**/bin": true,
+    "**/obj": true
+  }
+}
