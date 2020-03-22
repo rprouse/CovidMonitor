@@ -14,9 +14,15 @@ namespace Covid19DataProvider
             //CreateHostBuilder(args).Build().Run();
 
             var service = new CovidService();
-            var result = await service.FetchConfirmedCases();
-            int all = result.Sum(d => d.Count);
-            Console.WriteLine(all);
+            var result = await service.FetchConfirmedCasesFromJohnHopkins();
+            int all = result.Sum(d => d.Confirmed);
+            Console.WriteLine($"Total: {all}");
+
+            int canada = result.Where(d => d.Country == "Canada").Sum(d => d.Confirmed);
+            Console.WriteLine($"Canada: {canada}");
+
+            int us = result.Where(d => d.Country == "US").Sum(d => d.Confirmed);
+            Console.WriteLine($"US: {us}");
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
