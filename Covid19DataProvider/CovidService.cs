@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CsvHelper;
+using Microsoft.Extensions.Logging;
 
 namespace Covid19DataProvider
 {
@@ -17,9 +18,20 @@ namespace Covid19DataProvider
         const string ARC_GIS_QUERY_URI = "https://services9.arcgis.com/N9p5hsImWXAccRNI/arcgis/rest/services/Z7biAeD8PAkqgmWhxG2A/FeatureServer/1/query?f=json&where=(Confirmed%20%3E%200)&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc%2CCountry_Region%20asc%2CProvince_State%20asc&outSR=102100&resultOffset={0}&resultRecordCount={1}&cacheHint=true";
         const int RECORD_COUNT = 250;
 
+        private readonly ILogger<CovidService> _logger;
         HttpClient _client = new HttpClient();
 
-        public async Task<IList<CovidData>> FetchConfirmedCasesFromGitHub()
+        public CovidService(ILogger<CovidService> logger)
+        {
+            _logger = logger;
+        }
+
+        public async Task<IList<CovidData>> FetchConfirmedCases() =>
+            await FetchConfirmedCasesFromJohnHopkins();
+
+        // Gets cases from the John Hopkins GitHub repo. These tend to be
+        // a bit behind, but contains more information.
+        private async Task<IList<CovidData>> FetchConfirmedCasesFromGitHub()
         {
             string raw = await _client.GetStringAsync(CONFIRMED_URI);
 
@@ -48,7 +60,9 @@ namespace Covid19DataProvider
             }
         }
 
-        public async Task<IList<CovidData>> FetchConfirmedCasesFromJohnHopkins()
+        // Gets cases from the API that the John Hopkins interactive map fetches
+        // it's data from. It is more up to date, but does not contain past data
+        private async Task<IList<CovidData>> FetchConfirmedCasesFromJohnHopkins()
         {
             var records = new List<CovidData>();
 
@@ -57,6 +71,7 @@ namespace Covid19DataProvider
 
             while (more)
             {
+                _logger.LogInformation($"Fetching records {offset} to {offset + RECORD_COUNT - 1}");
                 var uri = string.Format(ARC_GIS_QUERY_URI, offset, RECORD_COUNT);
 
                 var request = new HttpRequestMessage(HttpMethod.Get, uri);

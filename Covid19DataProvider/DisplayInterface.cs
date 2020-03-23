@@ -38,7 +38,7 @@ namespace Covid19DataProvider
 
                 _logger.LogInformation("Requesting data...");
 
-                var result = await _service.FetchConfirmedCasesFromJohnHopkins();
+                var result = await _service.FetchConfirmedCases();
                 int all = result.Sum(d => d.Confirmed);
 
                 char r = (char)_serial.ReadChar();
