@@ -39,8 +39,6 @@ namespace Covid19DataProvider
 
                 var result = await _service.FetchConfirmedCases();
                 int all = result.Sum(d => d.Confirmed);
-                int active = result.Sum(d => d.Active);
-                _logger.LogInformation($"ACTIVE: {active}");
 
                 // Happens when the request quota is reached
                 if(all == 0)
@@ -49,19 +47,25 @@ namespace Covid19DataProvider
                 _logger.LogInformation($"ALL: {all}");
                 _serial.Write($"ALL: {all}\0");
                 char r = (char)_serial.ReadChar();  // We expect an 'r' ACK after each message sent
-                _logger.LogDebug($"ALL received {r}");
+                _logger.LogDebug($"ALL acknowledged {r}");
+
+                int active = result.Sum(d => d.Active);
+                _logger.LogInformation($"ACT: {active}");
+                _serial.Write($"ACT: {active}\0");
+                r = (char)_serial.ReadChar();
+                _logger.LogDebug($"ACT acknowledged {r}");
 
                 int canada = result.Where(d => d.Country == "Canada").Sum(d => d.Confirmed);
                 _logger.LogInformation($"CAD: {canada}");
                 _serial.Write($"CAD: {canada}\0");
                 r = (char)_serial.ReadChar();
-                _logger.LogDebug($"CAD received {r}");
+                _logger.LogDebug($"CAD acknowledged {r}");
 
                 int us = result.Where(d => d.Country == "US").Sum(d => d.Confirmed);
                 _logger.LogInformation($"USA: {us}");
                 _serial.Write($"USA: {us}\0");
                 r = (char)_serial.ReadChar();
-                _logger.LogDebug($"USA received {r}");
+                _logger.LogDebug($"USA acknowledged {r}");
 
                 return true;
             }

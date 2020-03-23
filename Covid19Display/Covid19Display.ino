@@ -15,14 +15,20 @@ LiquidCrystal_I2C lcd(0x27,20,4);
 const int numRows = 2;
 const int numCols = 16;
 
-String all = "";
-String cad = "";
-String usa = "";
+String all = "";  // Total confirmed cases
+String act = "";  // Total active cases
+String cad = "";  // Confirmed cases in Canada
+String usa = "";  // Confirmed cases in USA
 
 bool recv_data;
-byte show_cad = true;
+byte show_all = true;
 
-byte logo[8] =
+#define VIRUS  0
+#define SKULL  1
+#define MARKER 2
+#define GLOBE  3
+
+byte virus[8] =
 {
   B01010,
   B10001,
@@ -34,6 +40,42 @@ byte logo[8] =
   B11011
 };
 
+byte skull[8] =
+{
+  B10001,
+  B01110,
+  B10101,
+  B01110,
+  B01110,
+  B00000,
+  B01110,
+  B10001
+};
+
+byte marker[8] =
+{
+  B01110,
+  B01110,
+  B11011,
+  B11111,
+  B01110,
+  B01110,
+  B00100,
+  B00100
+};
+
+byte globe[8] =
+{
+  B00000,
+  B01110,
+  B11101,
+  B11101,
+  B10101,
+  B01110,
+  B00000,
+  B00000
+};
+
 void setup() {
   // Debugging output
   Serial.begin(57600);
@@ -41,7 +83,10 @@ void setup() {
   // set up the LCD's number of columns and rows: 
   lcd.begin(numCols, numRows);
   lcd.backlight();
-  lcd.createChar(0, logo);
+  lcd.createChar(VIRUS, virus);
+  lcd.createChar(SKULL, skull);
+  lcd.createChar(MARKER, marker);
+  lcd.createChar(GLOBE, globe);
   requestData();
 }
 
@@ -55,13 +100,28 @@ void loop()
 void displayData()
 {  
   lcd.clear();
-  lcd.setCursor( 0, 0 );
-  lcd.print(all.c_str());
-  lcd.setCursor( 0, 1 );
-  lcd.print((show_cad ? cad : usa).c_str());
+  
+  if(show_all)
+  {
+    lcd.setCursor( 0, 0 );
+    lcd.write( (uint8_t)GLOBE );
+    lcd.setCursor( 2, 0 );
+    lcd.print(all.c_str());
+    lcd.setCursor( 2, 1 );
+    lcd.print(act.c_str());
+  }
+  else
+  {
+    lcd.setCursor( 0, 0 );
+    lcd.write( (uint8_t)MARKER );
+    lcd.setCursor( 2, 0 );
+    lcd.print(cad.c_str());
+    lcd.setCursor( 2, 1 );
+    lcd.print(usa.c_str());    
+  }
 
-  show_cad = !show_cad;
-  delay(3000);  
+  show_all = !show_all;
+  delay(5000);  
 }
 
 void receiveData()
@@ -71,6 +131,8 @@ void receiveData()
     String data = Serial.readString();
     if(data.startsWith("ALL"))
       all = data;
+    else if(data.startsWith("ACT"))
+      act = data;
     else if(data.startsWith("CAD"))
       cad = data;
     else if(data.startsWith("USA"))
@@ -84,10 +146,10 @@ void receiveData()
 void requestData()
 {  
   lcd.setCursor( 0, 0 );
-  lcd.write( (uint8_t)0 ); // Logo
-  lcd.print(" Requesting");
+  lcd.write( (uint8_t)VIRUS );
+  lcd.print(" Awaiting");
   lcd.setCursor( 2, 1 );
-  lcd.print("data...");
+  lcd.print("COVID-19 data");
   recv_data = false;
-  show_cad = true;
+  show_all = true;
 }
