@@ -18,15 +18,11 @@ namespace Covid19DataProvider
         public int OBJECTID { get; set; }
         public string Province_State { get; set; }
         public string Country_Region { get; set; }
-        public long Last_Update { get; set; }
         public float Lat { get; set; }
         public float Long_ { get; set; }
         public int Confirmed { get; set; }
         public int Recovered { get; set; }
         public int Deaths { get; set; }
         public int Active { get; set; }
-        public object Admin2 { get; set; }
-        public object FIPS { get; set; }
-        public object Combined_Key { get; set; }
     }
 }

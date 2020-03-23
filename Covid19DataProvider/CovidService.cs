@@ -14,8 +14,8 @@ namespace Covid19DataProvider
     public class CovidService
     {
         const string CONFIRMED_URI = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
-        const string ARC_GIS_QUERY_URI = "https://services9.arcgis.com/N9p5hsImWXAccRNI/arcgis/rest/services/Z7biAeD8PAkqgmWhxG2A/FeatureServer/1/query?f=json&where=(Confirmed%20%3E%200)&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc%2CCountry_Region%20asc%2CProvince_State%20asc&outSR=102100&resultOffset={0}&resultRecordCount={1}&cacheHint=true";
-        const int RECORD_COUNT = 250;
+        const string ARC_GIS_QUERY_URI = "https://services9.arcgis.com/N9p5hsImWXAccRNI/arcgis/rest/services/Nc2JKvYFoAEOFCG5JSI6/FeatureServer/2/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc&outSR=102100&resultOffset={0}&resultRecordCount={1}&cacheHint=true";
+        const int RECORD_COUNT = 100;
 
         private readonly ILogger<CovidService> _logger;
         HttpClient _client = new HttpClient();
@@ -91,6 +91,13 @@ namespace Covid19DataProvider
                 {
                     string json = reader.ReadToEnd();
                     ArcGisCovidData data = Newtonsoft.Json.JsonConvert.DeserializeObject<ArcGisCovidData>(json);
+
+                    // Happens when the request quota is reached
+                    if(data?.features == null)
+                    {
+                        _logger.LogWarning("Unknown data returned: {0}", json);
+                        return records;
+                    }
 
                     IEnumerable<CovidData> covidData = data.features.Select(f => new CovidData {
                         Country = f.attributes.Country_Region,

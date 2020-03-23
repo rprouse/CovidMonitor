@@ -16,7 +16,7 @@ namespace Covid19DataProvider
             _service = service;
         }
 
-        public async Task RequestData(string comPort)
+        public async Task<bool> RequestData(string comPort)
         {
             SerialPort _serial = null;
 
@@ -40,6 +40,10 @@ namespace Covid19DataProvider
                 var result = await _service.FetchConfirmedCases();
                 int all = result.Sum(d => d.Confirmed);
 
+                // Happens when the request quota is reached
+                if(all == 0)
+                    return false;
+
                 _logger.LogInformation($"ALL: {all}");
                 _serial.Write($"ALL: {all}\0");
                 char r = (char)_serial.ReadChar();  // We expect an 'r' ACK after each message sent
@@ -56,6 +60,8 @@ namespace Covid19DataProvider
                 _serial.Write($"USA: {us}\0");
                 r = (char)_serial.ReadChar();
                 _logger.LogDebug($"USA received {r}");
+
+                return true;
             }
             finally
             {

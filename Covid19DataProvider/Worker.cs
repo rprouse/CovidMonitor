@@ -10,6 +10,8 @@ namespace Covid19DataProvider
     public class Worker : BackgroundService
     {
         const string COM_PORT = "com3";
+        const int LONG_DELAY = 60 * SHORT_DELAY;  // 1 Hour
+        const int SHORT_DELAY = 60 * 1000;        // 1 minute
 
         private readonly ILogger<Worker> _logger;
         private readonly DisplayInterface _display;
@@ -28,9 +30,11 @@ namespace Covid19DataProvider
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
+                    int delay = LONG_DELAY;
                     try
                     {
-                        await _display.RequestData(COM_PORT);
+                        if(!await _display.RequestData(COM_PORT))
+                            delay = SHORT_DELAY;
                     }
                     catch (FileNotFoundException fnfe)
                     {
@@ -40,7 +44,7 @@ namespace Covid19DataProvider
                     {
                         _logger.LogError(ex, $"Unknown error");
                     }
-                    await Task.Delay(60 * 60 * 1000, stoppingToken);
+                    await Task.Delay(delay, stoppingToken);
                 }
             }
         }
