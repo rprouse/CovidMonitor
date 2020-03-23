@@ -1,4 +1,3 @@
-using System;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading.Tasks;
