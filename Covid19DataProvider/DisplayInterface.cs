@@ -67,6 +67,17 @@ namespace Covid19DataProvider
                 r = (char)_serial.ReadChar();
                 _logger.LogDebug($"USA acknowledged {r}");
 
+                // Out of interest, log out some other stats
+                var c = result.Where(d => d.Country == "Canada").ToList();
+                int dead = result.Sum(d => d.Deaths);
+                int caDead = result.Where(d => d.Country == "Canada").Sum(d => d.Deaths);
+                int usDead = result.Where(d => d.Country == "US").Sum(d => d.Deaths);
+                int uk = result.Where(d => d.Country == "United Kingdom").Sum(d => d.Confirmed);
+
+                string stats = $"Additional stats:\r\n UK: {uk}\r\n Total Dead: {dead}\r\n Canada Dead: {caDead}\r\n US Dead: {usDead}";
+
+                _logger.LogInformation(stats);
+
                 return true;
             }
             finally
