@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CsvHelper;
@@ -14,7 +16,7 @@ namespace Covid19DataProvider
     public class CovidService
     {
         const string CONFIRMED_URI = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
-        const string ARC_GIS_QUERY_URI = "https://services9.arcgis.com/N9p5hsImWXAccRNI/arcgis/rest/services/Nc2JKvYFoAEOFCG5JSI6/FeatureServer/2/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc&outSR=102100&resultOffset={0}&resultRecordCount={1}&cacheHint=true";
+        const string ARC_GIS_QUERY_URI = "https://services9.arcgis.com/N9p5hsImWXAccRNI/arcgis/rest/services/Nc2JKvYFoAEOFCG5JSI6/FeatureServer/2/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc&outSR=102100&resultOffset={0}&resultRecordCount={1}&cacheHint=false&cacheBuster={2}";
         const int RECORD_COUNT = 100;
 
         private readonly ILogger<CovidService> _logger;
@@ -23,6 +25,7 @@ namespace Covid19DataProvider
         public CovidService(ILogger<CovidService> logger)
         {
             _logger = logger;
+            _client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
         }
 
         public async Task<IList<CovidData>> FetchConfirmedCases() =>
@@ -71,14 +74,12 @@ namespace Covid19DataProvider
             while (more)
             {
                 _logger.LogInformation($"Fetching records {offset} to {offset + RECORD_COUNT - 1}");
-                var uri = string.Format(ARC_GIS_QUERY_URI, offset, RECORD_COUNT);
+                var uri = string.Format(ARC_GIS_QUERY_URI, offset, RECORD_COUNT, DateTime.Now.Ticks);
 
                 var request = new HttpRequestMessage(HttpMethod.Get, uri);
-                request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36 Edg/80.0.361.69");
                 request.Headers.Add("Accept", "*/*");
                 request.Headers.Add("Accept-Encoding", "gzip");
                 request.Headers.Add("Accept-Language", "en-US,en;q=0.9");
-                request.Headers.Add("If-Modified-Since", "Sun, 22 Mar 2020 19:43:35 GMT");
                 request.Headers.Add("Origin", "https://gisanddata.maps.arcgis.com");
                 request.Headers.Add("Referer", "https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html");
 
