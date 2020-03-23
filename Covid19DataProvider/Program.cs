@@ -11,11 +11,9 @@ namespace Covid19DataProvider
         {
             //CreateHostBuilder(args).Build().Run();
 
-            using(DisplayInterface display = new DisplayInterface("com3"))
+            using(var display = new DisplayInterface("com3"))
             {
-                Console.WriteLine("=> Waiting for display");
-                Console.WriteLine("=> Press Enter to Exit");
-                Console.ReadLine();
+                await display.RequestData();
             }
         }
 

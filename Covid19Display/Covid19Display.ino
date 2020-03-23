@@ -76,16 +76,19 @@ void receiveData()
     {
       all = Serial.readString();
       recv_all = true;
+      Serial.write("a");
     }
     else if(!recv_cad)
     {
       cad = Serial.readString();      
       recv_cad = true;
+      Serial.write("c");
     }
     else if(!recv_usa)
     {
       usa = Serial.readString();      
       recv_usa = true;
+      Serial.write("u");
     }
   }
 }
@@ -101,4 +104,5 @@ void requestData()
   recv_cad = false;
   recv_usa = false;
   show_cad = true;
+  Serial.write("?");
 }

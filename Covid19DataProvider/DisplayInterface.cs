@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Covid19DataProvider
 {
@@ -20,32 +19,39 @@ namespace Covid19DataProvider
                 Parity = Parity.None,
                 DataBits = 8,
                 StopBits = StopBits.One,
-                Handshake = Handshake.None
+                Handshake = Handshake.None,
+                DtrEnable = true
             };
-
-            _serial.DataReceived += DataReceiveHandler;
 
             _serial.Open();
         }
 
-        private async void DataReceiveHandler(object sender, SerialDataReceivedEventArgs e)
+        public async Task RequestData()
         {
-            string data = _serial.ReadExisting();
-            Console.WriteLine($"Data received {data}");
-            Console.WriteLine("Fetching data");
+            Console.WriteLine("Requesting data...");
 
             var result = await _service.FetchConfirmedCasesFromJohnHopkins();
             int all = result.Sum(d => d.Confirmed);
+
+            char r = (char)_serial.ReadChar();
+            Console.WriteLine($"Ready to receive {r}");
+
             Console.WriteLine($"ALL: {all}");
-            _serial.WriteLine($"ALL: {all}");
+            _serial.Write($"ALL: {all}\0");
+            r = (char)_serial.ReadChar();
+            Console.WriteLine($"ALL received {r}");
 
             int canada = result.Where(d => d.Country == "Canada").Sum(d => d.Confirmed);
             Console.WriteLine($"CAD: {canada}");
-            _serial.WriteLine($"CAD: {canada}");
+            _serial.Write($"CAD: {canada}\0");
+            r = (char)_serial.ReadChar();
+            Console.WriteLine($"CAD received {r}");
 
             int us = result.Where(d => d.Country == "US").Sum(d => d.Confirmed);
             Console.WriteLine($"USA: {us}");
-            _serial.WriteLine($"USA: {us}");
+            _serial.Write($"USA: {us}\0");
+            r = (char)_serial.ReadChar();
+            Console.WriteLine($"USA received {r}");
         }
 
         public void Dispose()
