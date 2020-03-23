@@ -28,6 +28,10 @@ bool recv_usa;
 
 byte show_cad = true;
 
+unsigned long last_request;
+
+const int REFRESH = 3 * 60 * 60 * 1000;
+
 byte logo[8] =
 {
   B01010,
@@ -53,10 +57,12 @@ void setup() {
 
 void loop() 
 {
-  if(recv_all && recv_cad && recv_usa)
-    displayData();
-  else
+  if(!recv_all || !recv_cad || !recv_usa)
     receiveData();
+  else if (last_request + REFRESH < millis())
+    requestData();
+  else
+    displayData();
 }
 
 void displayData()
@@ -95,6 +101,8 @@ void receiveData()
 
 void requestData()
 {
+  last_request = millis();
+  
   lcd.setCursor( 0, 0 );
   lcd.write( (uint8_t)0 ); // Logo
   lcd.print(" Requesting");
