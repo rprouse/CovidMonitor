@@ -2,9 +2,21 @@
 
 A simple .NET Core worker service that fetches the latest confirmed COVID-19 cases from the John Hopkins dataset and displays them on an LCD screen powered by an Arduino Nano. It will update the data every hour.
 
-![Requesting data](images/requesting.jpg)
+### Awaiting data
 
-![Displaying data](images/displaying.jpg)
+![Awaiting data](images/awaiting.jpg)
+
+### Displaying World-Wide Data
+
+All confirmed cases and all active cases.
+
+![Displaying summary data](images/summary.jpg)
+
+### Displaying Regional Data
+
+Confirmed cases in Canada and the United States.
+
+![Displaying regional data](images/regional.jpg)
 
 ## Running the Covid19DataProvider
 
@@ -29,3 +41,5 @@ Then we can run the program from the command line.
 ```bat
 C:\temp\covid19\Covid19DataProvider.exe
 ```
+
+The program will continue running and updating the display every 15 minutes.
