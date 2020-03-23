@@ -104,7 +104,8 @@ namespace Covid19DataProvider
                         Province = f.attributes.Province_State,
                         Confirmed = f.attributes.Confirmed,
                         Deaths = f.attributes.Deaths,
-                        Recovered = f.attributes.Recovered
+                        Recovered = f.attributes.Recovered,
+                        Active = f.attributes.Active
                     });
 
                     records.AddRange(covidData);

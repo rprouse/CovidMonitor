@@ -39,6 +39,8 @@ namespace Covid19DataProvider
 
                 var result = await _service.FetchConfirmedCases();
                 int all = result.Sum(d => d.Confirmed);
+                int active = result.Sum(d => d.Active);
+                _logger.LogInformation($"ACTIVE: {active}");
 
                 // Happens when the request quota is reached
                 if(all == 0)
