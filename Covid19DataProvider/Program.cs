@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,16 +11,12 @@ namespace Covid19DataProvider
         {
             //CreateHostBuilder(args).Build().Run();
 
-            var service = new CovidService();
-            var result = await service.FetchConfirmedCasesFromJohnHopkins();
-            int all = result.Sum(d => d.Confirmed);
-            Console.WriteLine($"ALL: {all}");
-
-            int us = result.Where(d => d.Country == "US").Sum(d => d.Confirmed);
-            Console.WriteLine($"USA: {us}");
-
-            int canada = result.Where(d => d.Country == "Canada").Sum(d => d.Confirmed);
-            Console.WriteLine($"CAD: {canada}");
+            using(DisplayInterface display = new DisplayInterface("com3"))
+            {
+                Console.WriteLine("=> Waiting for display");
+                Console.WriteLine("=> Press Enter to Exit");
+                Console.ReadLine();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
