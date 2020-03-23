@@ -2,6 +2,10 @@
 
 A simple .NET Core worker service that fetches the latest confirmed COVID-19 cases from the John Hopkins dataset and displays them on an LCD screen powered by an Arduino Nano. It will update the data every hour.
 
+![Requesting data](images/requesting.jpg)
+
+![Displaying data](images/displaying.jpg)
+
 ## Running the Covid19DataProvider
 
 The data provider runs on the desktop computer, fetches the latest COVID-19 data and sends it to the connected Arduino Nano over the serial port for display.
