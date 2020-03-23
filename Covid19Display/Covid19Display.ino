@@ -12,9 +12,6 @@
 //Adafruit_RGBLCDShield lcd = Adafruit_RGBLCDShield();
 LiquidCrystal_I2C lcd(0x27,20,4);
 
-#define OFF 0x0
-#define ON  0x1
-
 const int numRows = 2;
 const int numCols = 16;
 
@@ -27,10 +24,6 @@ bool recv_cad;
 bool recv_usa;
 
 byte show_cad = true;
-
-unsigned long last_request;
-
-const int REFRESH = 3 * 60 * 60 * 1000;
 
 byte logo[8] =
 {
@@ -59,8 +52,6 @@ void loop()
 {
   if(!recv_all || !recv_cad || !recv_usa)
     receiveData();
-  else if (last_request + REFRESH < millis())
-    requestData();
   else
     displayData();
 }
@@ -100,9 +91,7 @@ void receiveData()
 }
 
 void requestData()
-{
-  last_request = millis();
-  
+{  
   lcd.setCursor( 0, 0 );
   lcd.write( (uint8_t)0 ); // Logo
   lcd.print(" Requesting");
@@ -112,5 +101,4 @@ void requestData()
   recv_cad = false;
   recv_usa = false;
   show_cad = true;
-  Serial.write("?");
 }
