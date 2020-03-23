@@ -15,14 +15,11 @@ LiquidCrystal_I2C lcd(0x27,20,4);
 const int numRows = 2;
 const int numCols = 16;
 
-String all;
-String cad;
-String usa;
+String all = "";
+String cad = "";
+String usa = "";
 
-bool recv_all;
-bool recv_cad;
-bool recv_usa;
-
+bool recv_data;
 byte show_cad = true;
 
 byte logo[8] =
@@ -50,9 +47,8 @@ void setup() {
 
 void loop() 
 {
-  if(!recv_all || !recv_cad || !recv_usa)
-    receiveData();
-  else
+  receiveData();
+  if(recv_data)
     displayData();
 }
 
@@ -72,24 +68,16 @@ void receiveData()
 {    
   if(Serial.available())
   {
-    if(!recv_all)
-    {
-      all = Serial.readString();
-      recv_all = true;
-      Serial.write("a");
-    }
-    else if(!recv_cad)
-    {
-      cad = Serial.readString();      
-      recv_cad = true;
-      Serial.write("c");
-    }
-    else if(!recv_usa)
-    {
-      usa = Serial.readString();      
-      recv_usa = true;
-      Serial.write("u");
-    }
+    String data = Serial.readString();
+    if(data.startsWith("ALL"))
+      all = data;
+    else if(data.startsWith("CAD"))
+      cad = data;
+    else if(data.startsWith("USA"))
+      usa = data;
+      
+    recv_data = true;
+    Serial.write("r");
   }
 }
 
@@ -100,9 +88,6 @@ void requestData()
   lcd.print(" Requesting");
   lcd.setCursor( 2, 1 );
   lcd.print("data...");
-  recv_all = false;
-  recv_cad = false;
-  recv_usa = false;
+  recv_data = false;
   show_cad = true;
-  Serial.write("?");
 }
