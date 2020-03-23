@@ -10,7 +10,7 @@ namespace Covid19DataProvider
     public class Worker : BackgroundService
     {
         const string COM_PORT = "com3";
-        const int LONG_DELAY = 60 * SHORT_DELAY;  // 1 Hour
+        const int LONG_DELAY = 15 * SHORT_DELAY;  // 15 Minutes
         const int SHORT_DELAY = 60 * 1000;        // 1 minute
 
         private readonly ILogger<Worker> _logger;
