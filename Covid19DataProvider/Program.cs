@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,12 +10,7 @@ namespace Covid19DataProvider
     {
         public static async Task Main(string[] args)
         {
-            //CreateHostBuilder(args).Build().Run();
-
-            using(var display = new DisplayInterface("com3"))
-            {
-                await display.RequestData();
-            }
+            CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

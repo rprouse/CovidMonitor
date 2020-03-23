@@ -35,6 +35,7 @@ namespace Covid19DataProvider
 
             char r = (char)_serial.ReadChar();
             Console.WriteLine($"Ready to receive {r}");
+            await Task.Delay(100);
 
             Console.WriteLine($"ALL: {all}");
             _serial.Write($"ALL: {all}\0");
