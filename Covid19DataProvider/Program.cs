@@ -18,6 +18,8 @@ namespace Covid19DataProvider
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Worker>();
+                    services.AddTransient<DisplayInterface>();
+                    services.AddTransient<CovidService>();
                 });
     }
 }

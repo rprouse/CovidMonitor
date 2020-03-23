@@ -10,10 +10,12 @@ namespace Covid19DataProvider
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
+        private readonly DisplayInterface _display;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(ILogger<Worker> logger, DisplayInterface display)
         {
             _logger = logger;
+            _display = display;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -26,14 +28,15 @@ namespace Covid19DataProvider
                 {
                     try
                     {
-                        using (var display = new DisplayInterface("com3"))
-                        {
-                            await display.RequestData();
-                        }
+                        await _display.RequestData("com3");
                     }
                     catch (FileNotFoundException fnfe)
                     {
-                        Console.WriteLine($"Could not connect to display: {fnfe.Message}");
+                        _logger.LogWarning($"Could not connect to display: {fnfe.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Unknown error");
                     }
                     await Task.Delay(60 * 60 * 1000, stoppingToken);
                 }

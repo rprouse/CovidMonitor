@@ -2,16 +2,25 @@ using System;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Covid19DataProvider
 {
-    public class DisplayInterface: IDisposable
+    public class DisplayInterface
     {
-        CovidService _service = new CovidService();
-        SerialPort _serial;
+        private readonly ILogger<DisplayInterface> _logger;
+        CovidService _service;
 
-        public DisplayInterface(string comPort)
+        public DisplayInterface(ILogger<DisplayInterface> logger, CovidService service)
         {
+            _logger = logger;
+            _service = service;
+        }
+
+        public async Task RequestData(string comPort)
+        {
+            SerialPort _serial = null;
+
             _serial = new SerialPort
             {
                 PortName = comPort,
@@ -23,44 +32,39 @@ namespace Covid19DataProvider
                 DtrEnable = true
             };
 
-            _serial.Open();
-        }
-
-        public async Task RequestData()
-        {
-            Console.WriteLine("Requesting data...");
-
-            var result = await _service.FetchConfirmedCasesFromJohnHopkins();
-            int all = result.Sum(d => d.Confirmed);
-
-            char r = (char)_serial.ReadChar();
-            Console.WriteLine($"Ready to receive {r}");
-            await Task.Delay(100);
-
-            Console.WriteLine($"ALL: {all}");
-            _serial.Write($"ALL: {all}\0");
-            r = (char)_serial.ReadChar();
-            Console.WriteLine($"ALL received {r}");
-
-            int canada = result.Where(d => d.Country == "Canada").Sum(d => d.Confirmed);
-            Console.WriteLine($"CAD: {canada}");
-            _serial.Write($"CAD: {canada}\0");
-            r = (char)_serial.ReadChar();
-            Console.WriteLine($"CAD received {r}");
-
-            int us = result.Where(d => d.Country == "US").Sum(d => d.Confirmed);
-            Console.WriteLine($"USA: {us}");
-            _serial.Write($"USA: {us}\0");
-            r = (char)_serial.ReadChar();
-            Console.WriteLine($"USA received {r}");
-        }
-
-        public void Dispose()
-        {
-            if(_serial != null)
+            try
             {
-                _serial.Dispose();
-                _serial = null;
+                _serial.Open();
+
+                _logger.LogInformation("Requesting data...");
+
+                var result = await _service.FetchConfirmedCasesFromJohnHopkins();
+                int all = result.Sum(d => d.Confirmed);
+
+                char r = (char)_serial.ReadChar();
+                _logger.LogDebug($"Ready to receive {r}");
+                await Task.Delay(100);
+
+                _logger.LogInformation($"ALL: {all}");
+                _serial.Write($"ALL: {all}\0");
+                r = (char)_serial.ReadChar();
+                _logger.LogDebug($"ALL received {r}");
+
+                int canada = result.Where(d => d.Country == "Canada").Sum(d => d.Confirmed);
+                _logger.LogInformation($"CAD: {canada}");
+                _serial.Write($"CAD: {canada}\0");
+                r = (char)_serial.ReadChar();
+                _logger.LogDebug($"CAD received {r}");
+
+                int us = result.Where(d => d.Country == "US").Sum(d => d.Confirmed);
+                _logger.LogInformation($"USA: {us}");
+                _serial.Write($"USA: {us}\0");
+                r = (char)_serial.ReadChar();
+                _logger.LogDebug($"USA received {r}");
+            }
+            finally
+            {
+                _serial.Close();
             }
         }
     }
