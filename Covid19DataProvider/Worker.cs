@@ -9,6 +9,8 @@ namespace Covid19DataProvider
 {
     public class Worker : BackgroundService
     {
+        const string COM_PORT = "com3";
+
         private readonly ILogger<Worker> _logger;
         private readonly DisplayInterface _display;
 
@@ -28,7 +30,7 @@ namespace Covid19DataProvider
                 {
                     try
                     {
-                        await _display.RequestData("com3");
+                        await _display.RequestData(COM_PORT);
                     }
                     catch (FileNotFoundException fnfe)
                     {
