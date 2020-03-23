@@ -28,7 +28,7 @@ namespace Covid19DataProvider
                 DataBits = 8,
                 StopBits = StopBits.One,
                 Handshake = Handshake.None,
-                DtrEnable = true
+                DtrEnable = false
             };
 
             try
@@ -40,13 +40,9 @@ namespace Covid19DataProvider
                 var result = await _service.FetchConfirmedCases();
                 int all = result.Sum(d => d.Confirmed);
 
-                char r = (char)_serial.ReadChar();
-                _logger.LogDebug($"Ready to receive {r}");
-                await Task.Delay(100);
-
                 _logger.LogInformation($"ALL: {all}");
                 _serial.Write($"ALL: {all}\0");
-                r = (char)_serial.ReadChar();
+                char r = (char)_serial.ReadChar();  // We expect an 'r' ACK after each message sent
                 _logger.LogDebug($"ALL received {r}");
 
                 int canada = result.Where(d => d.Country == "Canada").Sum(d => d.Confirmed);
