@@ -27,19 +27,19 @@ The data provider is hard coded to look for the Arduinon on `COM3`. Change `COM_
 ### Running from the command line
 
 
-First we need to publish the application to a directory on our computer. I'm using `C:\temp\covid19`.
+First we need to publish the application to a directory on our computer. I'm using `C:\Users\rob\OneDrive\bin\covid19\`.
 
 From the root of the solution;
 
 ```bat
-dotnet publish -o c:\temp\covid19 .\Covid19DataProvider\
+dotnet publish -o C:\Users\rob\OneDrive\bin\covid19\ -c Release .\Covid19DataProvider\
 ```
 
 Then we can run the program from the command line.
 
 
 ```bat
-C:\temp\covid19\Covid19DataProvider.exe
+C:\Users\rob\OneDrive\bin\covid19\Covid19DataProvider.exe
 ```
 
 The program will continue running and updating the display every 15 minutes.
